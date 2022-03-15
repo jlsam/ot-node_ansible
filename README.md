@@ -1,3 +1,5 @@
+### Introduction
+
 This [Ansible](https://www.ansible.com/) [playbook](https://docs.ansible.com/ansible/latest/user_guide/playbooks_intro.html) and associated files will setup a fresh Linux server and install an Origin Trail v6 test node. Testing was done in a VPS running Ubuntu 18.04 and 20.04. These instructions also assume your [control](https://docs.ansible.com/ansible/latest/network/getting_started/basic_concepts.html#control-node) system is running a Linux distribution that uses `apt` as the package manager.
 
 See [this file](quick-instructions.md) for quick setup instructions.
@@ -20,13 +22,13 @@ Official Ansible installation instructions are provided [here](https://docs.ansi
 
 But in a nutshell, run these commands:
 
-  $ `sudo apt update`
+ $ `sudo apt update`
 
-  $ `sudo apt install software-properties-common`
+ $ `sudo apt install software-properties-common`
 
-  $ `sudo add-apt-repository --yes --update ppa:ansible/ansible`
+ $ `sudo add-apt-repository --yes --update ppa:ansible/ansible`
 
-  $ `sudo apt install ansible`
+ $ `sudo apt install ansible`
 
 Ansible is installed in the control system only. There are no installation steps for the remote servers. Ansible connects to the remote servers via SSH and uses the existing Python libraries to execute the playbooks.
 
