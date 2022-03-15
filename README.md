@@ -60,7 +60,7 @@ The included [`hosts`](hosts) file demonstrates several different ways to setup 
 
 - If a [role](https://docs.ansible.com/ansible/latest/user_guide/playbooks_reuse_roles.html) applies only to a subset of the inventory, you can create more groups under `children:`. These groups can contain both existing individual servers and also existing server groups (ex. `ot_nodes:`). The playbook file can include one or more of these names as the target(s) for the playbook execution.
 
-The `hosts` file can store **server-specific variables**. Alternatively, these variables can be stored in .yml files under [`host-vars`](host-vars/), each filename matching the server alias. Examples are provided for both situations. If the hosts file becomes too unwieldy and confusing with many servers and variables, the `host-vars` directory is probably the best option.
+The `hosts` file can store **server-specific variables**. Alternatively, these variables can be stored in .yml files under [`host_vars/`](host_vars/), each filename matching the server alias. Examples are provided for both situations. If the hosts file becomes too unwieldy and confusing with many servers and variables, the `host-vars` directory is probably the best option.
 
 I recommend you pick one approach and take care not to declare the same variable in different locations, otherwise you can run into problems because of [variable precedence](https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html#variable-precedence-where-should-i-put-a-variable). In any case, two variables need to be declared for the playbook to work, see [host_vars/v6_testnet.yml](host_vars/v6_testnet.yml) for a template.
 
