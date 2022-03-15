@@ -1,0 +1,13 @@
+---
+# https://www.cyberciti.biz/faq/reload-sysctl-conf-on-linux-using-sysctl/
+- name: sysctl
+  ansible.builtin.command: "sysctl -p"
+
+- name: ufw_reload
+  community.general.ufw:
+    state: reloaded
+
+- name: sshd_reload
+  ansible.builtin.systemd:
+    name: sshd
+    state: reloaded

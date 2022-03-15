@@ -1,0 +1,25 @@
+{
+  "blockchain":[
+    {
+      "blockchainTitle": "Polygon",
+      "networkId": "polygon::testnet",
+      "rpcEndpoints": ["https://rpc-mumbai.maticvigil.com/"],
+      "publicKey": "{{ oper_wallet_addr }}",
+      "privateKey": "{{ oper_wallet_privkey }}"
+    }
+  ],
+  "graphDatabase": {
+    "implementation": "Blazegraph",
+    "url": "http://localhost:9999/blazegraph",
+    "username": "admin",
+    "password": ""
+  },
+  "logLevel": "trace",
+  "rpcPort": 8900,
+  "network": {
+  },
+  "ipWhitelist": [
+  "::1",
+    "127.0.0.1"
+  ]
+}

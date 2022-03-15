@@ -1,0 +1,37 @@
+---
+- name: Set general permissions
+  community.general.ufw:
+    direction: "{{ item.direction }}"
+    policy: "{{ item.policy }}"
+  with_items:
+    - { direction: 'incoming', policy: 'deny' }
+    - { direction: 'outgoing', policy: 'allow' }
+
+- name: Limit SSH
+  community.general.ufw:
+    rule: limit
+    port: ssh
+    proto: tcp
+
+- name: Allow ports
+  community.general.ufw:
+    rule: allow
+    port: "{{ item.port }}"
+    proto: "{{ item.prtcl }}"
+  loop: "{{ node_ports }}"
+  when: node_ports is defined
+
+- name: Edit /etc/ufw/before.rules to prevent ping flood
+  ansible.builtin.blockinfile:
+    path: /etc/ufw/before.rules
+    insertbefore: "# don't delete the 'COMMIT' line.+"
+    content: |
+      # Prevent Ping Flood
+      # http://bookofzeus.com/harden-ubuntu/hardening/protect-ddos-attacks/
+      -A INPUT -p icmp -m limit --limit 6/s --limit-burst 1 -j ACCEPT
+      -A INPUT -p icmp -j DROP
+
+- name: Enable UFW and turn on logging
+  community.general.ufw:
+    state: reloaded
+    logging: on

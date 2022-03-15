@@ -1,0 +1,13 @@
+---
+# Location of swapfile
+swap_path: "/swapfile"
+
+# https://linuxhint.com/understanding_vm_swappiness/
+swappiness: 30
+
+# How often inode info is removed from cache
+# Usually a frequent and costly lookup if not cached
+vfs_cache_pressure: 50
+
+# en_GB.UTF-8, de_CH.UTF-8, pt_PT.UTF-8, en_US.UTF-8, etc
+locale: en_US.UTF-8

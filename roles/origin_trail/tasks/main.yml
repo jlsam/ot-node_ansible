@@ -1,0 +1,223 @@
+---
+# ###################################
+#        Package installation
+- name: Add NodeSource GPG key
+  ansible.builtin.apt_key:
+    url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+    state: present
+
+- name: Add NodeSource repository
+  ansible.builtin.apt_repository:
+    repo: deb [arch=amd64] https://deb.nodesource.com/node_14.x {{ansible_distribution_release}} main
+    state: present
+
+- name: Install packages
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop:
+    - git
+    - default-jre
+    - unzip
+    - nodejs
+    - tcllib
+    - mysql-server
+
+- name: Create a symbolic link for java (Ubuntu 18)
+  ansible.builtin.file:
+    src: /usr/bin/java
+    dest: /bin/java
+    owner: root
+    group: root
+    state: link
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version|int < 20
+
+- name: Prevent nodejs from being upgraded
+  ansible.builtin.dpkg_selections:
+    name: nodejs
+    selection: hold
+
+# ###################################
+#        ot-node setup
+- block:
+  - name: Checkout ot-node v6 testnet from GitHub
+    ansible.builtin.git:
+      repo: https://github.com/OriginTrail/ot-node
+      dest: /root/ot-node
+      version: v6/release/testnet
+      clone: yes
+      single_branch: yes
+      force: yes
+    register: git_checkout
+
+  - name: Restrict permissions for ot-node dir
+    ansible.builtin.file:
+      path: /root/ot-node
+      state: directory
+      mode: 0750
+      recurse: yes
+
+  - name: Npm install ot-node
+    community.general.npm:
+      #name: package #not-needed (defaults to package.json)
+      path: /root/ot-node
+    register: npm
+    when: git_checkout.changed
+
+  - name: Downgrade "auto-git-update" to fix auto-updates
+    community.general.npm:
+      name: auto-git-update
+      version: 2.0.2
+      path: /root/ot-node
+
+  - name: Upload .env
+    ansible.builtin.copy:
+      dest: /root/ot-node/.env
+      content: NODE_ENV=testnet
+      mode: 0640
+  tags: ot_node
+
+- name: Install origintrail_noderc from template
+  ansible.builtin.template:
+    src: .origintrail_noderc.j2
+    dest: /root/ot-node/.origintrail_noderc
+    mode: 0640
+  register: noderc
+  tags: noderc, ot_node, blazegraph
+
+- name: GraphDB edits to .origintrail_noderc
+  ansible.builtin.lineinfile:
+    path: /root/ot-node/.origintrail_noderc
+    regexp: "{{ item }}"
+    state: absent
+  with_items:
+    - implementation
+    - localhost:9999/blazegraph
+  when: noderc.changed and database == "graphdb"
+  tags: graphdb, noderc, ot_node
+
+# ###################################
+#        Setup databases
+- block:
+  - name: Download Blazegraph installation file
+    ansible.builtin.get_url:
+      url: "{{ blazegraph_url }}"
+      dest: /root
+      mode: 0770
+      force: no
+
+  - name: Place Blazegraph service file
+    ansible.builtin.copy:
+      src: /root/ot-node/installer/data/blazegraph.service
+      dest: /lib/systemd/system/
+      remote_src: yes
+      mode: 0640
+    register: blazegraph_service
+
+  - name: Enable and start blazegraph.service
+    ansible.builtin.systemd:
+      name: blazegraph
+      state: started
+      enabled: yes
+      daemon_reload: yes
+      masked: no
+  when: database == "blazegraph"
+  tags: blazegraph
+
+- block:
+  - name: Check if Graphdb installer exits in remote system
+    ansible.builtin.stat:
+      path: /root/graphdb-free-9.10.1-dist.zip
+    register: graphdb_remote
+
+  - name: Copy Graphdb installation file from control system
+    ansible.builtin.copy:
+      src: graphdb-free-9.10.1-dist.zip
+      dest: /root/graphdb-free-9.10.1-dist.zip
+      mode: 0640
+    when: not graphdb_remote.stat.exists
+
+  - name: Unzip Graphdb installer
+    ansible.builtin.unarchive:
+      src: /root/graphdb-free-9.10.1-dist.zip
+      dest: /root # /root/graphdb-free-9.10.1
+      remote_src: yes
+
+  - name: Place Graphdb service file
+    ansible.builtin.copy:
+      src: /root/ot-node/installer/data/graphdb.service
+      dest: /lib/systemd/system/
+      remote_src: yes
+      mode: 0640
+    register: systemd_service
+
+  - name: Enable and start graphdb.service
+    ansible.builtin.systemd:
+      name: graphdb
+      state: started
+      enabled: yes
+      daemon_reload: yes
+      masked: no
+  when: database == "graphdb"
+  tags: graphdb
+
+- name: Delete MySQL operationaldb
+  ansible.builtin.command: ' mysql -u root -e "DROP DATABASE operationaldb"'
+  tags: never, mysql
+
+- block:
+  - name: Copy setup-mysql.sql batch file
+    ansible.builtin.copy:
+      src: setup-mysql.sql
+      dest: /root/setup-mysql.sql
+      mode: 0640
+
+  - name: Execute MySQL batch file
+    ansible.builtin.shell: 'mysql < setup-mysql.sql'
+    args:
+      chdir: /root
+
+  - name: max_binlog_size commented in mysqld.cnf
+    ansible.builtin.lineinfile:
+      path: /etc/mysql/mysql.conf.d/mysqld.cnf
+      regexp: "^max_binlog_size"
+      line: "#max_binlog_size   = 100M"
+      state: present
+
+  - name: disable_log_bin present in mysqld.cnf
+    ansible.builtin.lineinfile:
+      path: /etc/mysql/mysql.conf.d/mysqld.cnf
+      line: "disable_log_bin"
+      insertafter: EOF
+      state: present
+
+  - name: mysql.service restarted
+    ansible.builtin.systemd:
+      name: mysql
+      state: restarted
+  tags: mysql
+
+- name: Run DB migrations
+  ansible.builtin.command: npx sequelize --config=./config/sequelizeConfig.js db:migrate
+  args:
+    chdir: /root/ot-node
+
+# ###################################
+#       otnode.service config
+- name: Place otnode service file
+  ansible.builtin.copy:
+    src: /root/ot-node/installer/data/otnode.service
+    dest: /lib/systemd/system/
+    remote_src: yes
+    mode: 0640
+  tags: ot_node
+
+- name: Enable and start otnode.service
+  ansible.builtin.systemd:
+    name: otnode
+    state: restarted
+    enabled: yes
+    daemon_reload: yes
+    masked: no
+  tags: ot_node

@@ -1,0 +1,17 @@
+all:
+  hosts:
+    vps1: # comments allowed
+    test2:
+    v6_testnet:
+      oper_wallet_addr: 0x1A2B3C4D5E6F7G8H9I0J1K2L3M4N5O6P7Q8R9S0T
+      oper_wallet_privkey: "{{ lookup('keyring','origin_trail node_privk') }}"
+  children:
+    origin_trail:
+      hosts:
+        ot-node1:
+        ot-node2:
+    ot_nodes:
+      hosts:
+        v6_testnet:
+      children:
+        origin_trail:

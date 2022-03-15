@@ -1,0 +1,12 @@
+---
+node_ports:
+  - { port: 8900, prtcl: "tcp" }
+  - { port: 9000, prtcl: "tcp" }
+
+blazegraph_url: https://github.com/blazegraph/database/releases/download/BLAZEGRAPH_2_1_6_RC/blazegraph.jar
+
+# not needed yet
+#manag_wallet: 0xfab44cea8fE1fD097F823E6b94dB41E49d765CB7
+
+# graphdb OR blazegraph
+database: blazegraph

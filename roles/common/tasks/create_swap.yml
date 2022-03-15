@@ -1,0 +1,55 @@
+---
+- name: Disable swap
+  ansible.builtin.command: swapoff -a
+
+- name: Remove swapfile from /etc/fstab
+  ansible.posix.mount:
+    path: "{{ swap_path }}"
+    fstype: swap
+    state: absent
+
+- name: Create new swapfile
+  ansible.builtin.shell: fallocate -l 2G {{ swap_path }}
+
+- name: Set swapfile permissions
+  ansible.builtin.file:
+    path: "{{ swap_path }}"
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Build swapfile
+  ansible.builtin.command: mkswap {{ swap_path }}
+
+- name: Enable swapfile
+  ansible.builtin.command: swapon {{ swap_path }}
+
+# Was working until 2.9.x; broken in v2.12.2
+# https://github.com/ansible-collections/ansible.posix/issues/106
+- name: Add swapfile to /etc/fstab
+  ansible.posix.mount:
+    src: "{{ swap_path }}"
+    name: none
+    fstype: swap
+    opts: sw
+    dump: "0"
+    passno: "0"
+    state: mounted
+  tags: never
+
+- name: Add swapfile to /etc/fstab
+  lineinfile:
+    dest: /etc/fstab
+    regexp: "{{ swap_path }}"
+    line: "{{ swap_path }} none swap sw 0 0"
+    state: present
+    validate: mount -a -T %s
+
+# https://askubuntu.com/questions/224276/ubuntu-way-to-run-sysctl-p-on-each-boot
+- name: Set swappiness and vfs_cache_pressure
+  ansible.builtin.copy:
+    dest: /etc/sysctl.d/60-swap.conf
+    content: |
+      "vm.swappiness={{ swappiness }}"
+      "vm.vfs_cache_pressure={{ vfs_cache_pressure }}"
+  notify: sysctl

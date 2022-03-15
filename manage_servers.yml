@@ -1,0 +1,38 @@
+---
+# To configure a new server, run with: ansible-playbook manage_servers.yml -i hosts
+# Repository updates: ansible-playbook manage_servers.yml -i hosts --tags "apt_update"
+# To resume playbook after fixing an error: ansible-playbook manage_servers.yml -i hosts --start-at-task="task name" [--tags "if-applicable"]
+
+- name: Manage ot-node servers
+
+  vars:
+    reboot_after: no # yes/no - quick way to turn on a forced server reboot at the end of the playbook
+
+  hosts:
+     #- vps1
+     #- v6_testnet
+     - test2
+     #- origin_trail
+     #- ot_nodes
+
+  roles:
+     - origin_trail
+     #- ansible-hardening # https://docs.openstack.org/ansible-hardening/latest/getting-started.html
+
+  post_tasks:
+    - name: Force all notified handlers to run at this point
+      ansible.builtin.meta: flush_handlers
+      tags: always
+
+    - name: Reboot at end of playbook
+      ansible.builtin.reboot:
+      when: reboot_after
+      tags: always
+
+  handlers:
+    - name: reboot
+      ansible.builtin.shell: sleep 10 && reboot
+      async: 300
+      poll: 0
+      args:
+        removes: /var/run/reboot-required # reboot only if necessary
