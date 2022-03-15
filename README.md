@@ -1,11 +1,11 @@
-These [Ansible](https://www.ansible.com/) [playbooks](https://docs.ansible.com/ansible/latest/user_guide/playbooks_intro.html) and associated files will setup a fresh Linux server and install an Origin Trail v6 test node. Testing was done in a VPS running Ubuntu 18.04 and 20.04.
+This [Ansible](https://www.ansible.com/) [playbook](https://docs.ansible.com/ansible/latest/user_guide/playbooks_intro.html) and associated files will setup a fresh Linux server and install an Origin Trail v6 test node. Testing was done in a VPS running Ubuntu 18.04 and 20.04. These instructions also assume your [control](https://docs.ansible.com/ansible/latest/network/getting_started/basic_concepts.html#control-node) system is running a Linux distribution that uses `apt` as the package manager.
 
 See [this file](quick-instructions.md) for quick setup instructions.
 
-Recent versions of Debian [switched](https://wiki.debian.org/MySql) from MySQL to MariaDB. ot-node bash installer uuses MySQL and one of the commands is not compatible with MariaDB. If the Origin Trail provides support for MariaDB in the future I will endeavor to make the necessary changes, but for now Debian is not supported.
+Recent versions of Debian [switched](https://wiki.debian.org/MySql) from MySQL to MariaDB. ot-node bash installer uses MySQL and one of the commands is not compatible with MariaDB. If the Origin Trail provides support for MariaDB in the future I will endeavor to make the necessary changes, but for now Debian is not supported.
 
 ### SSH configuration
-This setup assumes a working `config` file in ~/.ssh, in the [control](https://docs.ansible.com/ansible/latest/network/getting_started/basic_concepts.html#control-node) system. I include a sample file and simple instructions [here](.ssh/).
+This setup assumes a working `config` file in ~/.ssh, in the control system. I include a sample file and simple instructions [here](.ssh/).
 
 >Note: the `.ssh/` directory in this repository is just a placeholder for the `config` file and instructions. The folder is not necessary to run the playbooks.
 
@@ -19,20 +19,22 @@ This setup also assumes that your VPS provider allows for the placement of a SSH
 Official Ansible installation instructions are provided [here](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html).
 
 But in a nutshell, run these commands:
-```
-$ sudo apt update
-$ sudo apt install software-properties-common
-$ sudo add-apt-repository --yes --update ppa:ansible/ansible
-$ sudo apt install ansible
-```
 
-Ansible is installed in the control system only. There is no installation steps for the remote servers. Ansible connects to the remote servers via SSH and uses the existing Python libraries to execute the playbooks.
+  $ `sudo apt update`
+
+  $ `sudo apt install software-properties-common`
+
+  $ `sudo add-apt-repository --yes --update ppa:ansible/ansible`
+
+  $ `sudo apt install ansible`
+
+Ansible is installed in the control system only. There are no installation steps for the remote servers. Ansible connects to the remote servers via SSH and uses the existing Python libraries to execute the playbooks.
 
 #### Install additional collection community.general
 
 This playbook uses the plugin [community.general.npm](https://docs.ansible.com/ansible/latest/collections/community/general/npm_module.html). To install, issue the command
 
-$`ansible-galaxy collection install community.general`
+  $`ansible-galaxy collection install community.general`
 
 This collection is also required for the locale plugin detailed below.
 
@@ -40,7 +42,7 @@ This collection is also required for the locale plugin detailed below.
 
 Either use GitHub suggested options (the green 'Code' button on the top right side of the page) or navigate to the destiny directory in the control system and type in a terminal
 
-$ `git clone jlsam/ot-node_ansible`
+  $ `git clone jlsam/ot-node_ansible`
 
 ### Ansible hosts file configuration
 
@@ -63,7 +65,7 @@ I recommend you pick one approach and take care not to declare the same variable
 - `origin_trail_wallet:` The operational wallet public key (address).
 - `origin_trail_wallet_privkey:` The operational wallet private key.
 
->Ansible supports a [specific directory/file](roles/origin_trail/vars/) structure for **role-specific variables**, i.e., variables that are common to all servers running the same setup (role).
+>Ansible also supports a [specific directory/file](roles/origin_trail/vars/) structure for **role-specific variables**, i.e., variables that are common to all servers running the same setup (role).
 
 ### Storing private keys and other sensitive data
 
@@ -104,8 +106,8 @@ I suggest using server hardening roles to help secure the servers:
 
 At the root of the repository, run
 
-$`ansible-playbook manage_servers.yml -i hosts`
+  $`ansible-playbook manage_servers.yml -i hosts`
 
 ### Acknowledgements
 
-The Origin Trail installation procedure was based in [this bash script](https://github.com/OriginTrail/ot-node/blob/v6/develop/installer/installer.sh) and with the help of community members in [Telegram](https://t.me/otnodegroup).
+The installation procedure was based in [the offical bash script installer](https://github.com/OriginTrail/ot-node/blob/v6/develop/installer/installer.sh) and had help of community members in [Telegram](https://t.me/otnodegroup).

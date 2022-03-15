@@ -10,8 +10,8 @@
 
   hosts:
      #- vps1
-     #- v6_testnet
-     - test2
+     - v6_testnet
+     #- test2
      #- origin_trail
      #- ot_nodes
 
