@@ -60,9 +60,9 @@
 
   - name: Npm install ot-node
     community.general.npm:
-      #name: package #not-needed (defaults to package.json)
+      #name: package # not-needed (defaults to package.json)
       path: /root/ot-node
-    register: npm
+    #register: npm
     when: git_checkout.changed
 
   - name: Downgrade "auto-git-update" to fix auto-updates

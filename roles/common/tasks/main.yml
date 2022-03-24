@@ -28,6 +28,13 @@
     state: present
   tags: locale
 
+- name: Max. 50 Mb total for files in /var/log/journal/
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/journald.conf
+    regexp: "SystemMaxUse"
+    line: SystemMaxUse=50M
+    state: present
+
 # ###################################
 #    Harden /etc/ssh/sshd_config
 
@@ -49,10 +56,6 @@
   register: sshd_config
   when: >
     ansible_distribution == "Ubuntu" and ansible_distribution_major_version|int >= 20
-
-- name: debug sshd_config
-  debug:
-    msg: "{{sshd_config}}"
 
 # Not any of the above
 - block:

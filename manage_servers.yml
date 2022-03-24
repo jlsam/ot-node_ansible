@@ -10,13 +10,14 @@
 
   hosts:
      #- vps1
-     - v6_testnet
-     #- test2
+     #- v6_testnet
+      - test2
      #- origin_trail
      #- ot_nodes
 
   roles:
      - origin_trail
+     - otnode-tester
      #- ansible-hardening # https://docs.openstack.org/ansible-hardening/latest/getting-started.html
 
   post_tasks:

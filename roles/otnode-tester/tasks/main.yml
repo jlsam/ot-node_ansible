@@ -1,0 +1,32 @@
+---
+- name: Clone otnode-tester v6 testnet from GitHub
+  ansible.builtin.git:
+    repo: https://github.com/Aescwine/otnode-tester.git
+    dest: /root/otnode-tester
+    #version: master
+    clone: yes
+    single_branch: yes
+    force: yes
+  register: git_tester
+
+- name: Npm install ot-node
+  community.general.npm:
+    #name: package # not-needed (defaults to package.json)
+    path: /root/otnode-tester
+  #register: npm
+  when: git_tester.changed
+
+- name: Place nodetester service file
+  ansible.builtin.copy:
+    src: /root/otnode-tester/service/nodetester.service
+    dest: /lib/systemd/system/
+    remote_src: yes
+    mode: 0640
+
+- name: Enable and start otnode-tester.service
+  ansible.builtin.systemd:
+    name: nodetester
+    state: started
+    enabled: yes
+    daemon_reload: yes
+    masked: no
