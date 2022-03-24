@@ -1,17 +1,17 @@
-### Short version / I know the basics instructions
+## Short version / I know the basics instructions
 
  1. Add the server's details to your local `~/ssh/config` file. Make sure you can manually connect to the server using a SSH key.
 
  2. Install Ansible and the `community.general` collection:
-   
+
     $ `sudo apt update`
-    
+
     $ `sudo apt install software-properties-common`
-    
+
     $ `sudo add-apt-repository --yes --update ppa:ansible/ansible`
-    
+
     $ `sudo apt install ansible`
-    
+
     $ `ansible-galaxy collection install community.general`
 
  3. Clone this repository:
@@ -34,7 +34,7 @@
 
  7. Set the operational wallet address and private key to variables in `host_vars/v6_testnet.yml` (ssh_alias.yml). Set the lookup variable names to match what you chose in step 6.
 
- 8. Choose which Graph database you want to run in [`roles/origin_trail/vars/main.yml`](roles/origin_trail/vars/main.yml). Blazegraph is the default and requires no other action. If you choose GraphDB, place the installer `graphdb-free-9.10.1-dist.zip` in [`roles/origin_trail/files/`](roles/origin_trail/files/).
+ 8. Choose which Graph database you want to run in [`roles/origin_trail/vars/main.yml`](roles/origin_trail/vars/main.yml). Blazegraph is the default and requires no other action. If you choose GraphDB, place the installer `graphdb-free-9.10.x-dist.zip` in [`roles/origin_trail/files/`](roles/origin_trail/files/).
 
  9. Execute the playbook in the root directory of the repository:
 

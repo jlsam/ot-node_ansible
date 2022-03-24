@@ -1,5 +1,6 @@
 ---
 # To configure a new server, run with: ansible-playbook manage_servers.yml -i hosts
+# To install with ODNBlockbuster and the same OMDB API key for all servers: ansible-playbook manage_servers.yml -i hosts -e "omdb_apikey=your-key-here"
 # Repository updates: ansible-playbook manage_servers.yml -i hosts --tags "apt_update"
 # To resume playbook after fixing an error: ansible-playbook manage_servers.yml -i hosts --start-at-task="task name" [--tags "if-applicable"]
 
@@ -10,14 +11,15 @@
 
   hosts:
      #- vps1
-      - v6_testnet
-     #- test2
+     #- v6_testnet
+      - test2
      #- origin_trail
      #- ot_nodes
 
   roles:
      - origin_trail
      - otnode-tester
+     - ODNBlockbuster
      #- ansible-hardening # https://docs.openstack.org/ansible-hardening/latest/getting-started.html
 
   post_tasks:

@@ -1,4 +1,4 @@
-### Introduction
+## Introduction
 
 This [Ansible](https://www.ansible.com/) [playbook](https://docs.ansible.com/ansible/latest/user_guide/playbooks_intro.html) and associated files will setup a fresh Linux server and install an Origin Trail v6 test node. Testing was done in a VPS running Ubuntu 18.04 and 20.04. These instructions also assume your [control](https://docs.ansible.com/ansible/latest/network/getting_started/basic_concepts.html#control-node) system is running a Linux distribution that uses `apt` as the package manager.
 
@@ -6,7 +6,7 @@ See [this file](quick-instructions.md) for quick setup instructions.
 
 Recent versions of Debian [switched](https://wiki.debian.org/MySql) from MySQL to MariaDB. ot-node bash installer uses MySQL and one of the commands is not compatible with MariaDB. If the Origin Trail provides support for MariaDB in the future I will endeavor to make the necessary changes, but for now Debian is not supported.
 
-### SSH configuration
+## SSH configuration
 This setup assumes a working `config` file in ~/.ssh, in the control system. I include a sample file and simple instructions [here](.ssh/).
 
 >Note: the `.ssh/` directory in this repository is just a placeholder for the `config` file and instructions. The folder is not necessary to run the playbooks.
@@ -15,7 +15,7 @@ The SSH authentication is done via a SSH key pair. During execution the playbook
 
 This setup also assumes that your VPS provider allows for the placement of a SSH public key when the VPS is created. If this is not the case, you will have to [create and transfer](https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys-on-ubuntu-20-04) over the public key manually before running the playbook.
 
-### Install ansible
+## Install ansible
 > Note: These playbooks are not compatible with Ansible 2.9.x. Testing was done with Ansible v2.12.2.
 
 Official Ansible installation instructions are provided [here](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html).
@@ -32,7 +32,7 @@ But in a nutshell, run these commands:
 
 Ansible is installed in the control system only. There are no installation steps for the remote servers. Ansible connects to the remote servers via SSH and uses the existing Python libraries to execute the playbooks.
 
-#### Install additional collection community.general
+### Install additional collection community.general
 
 This playbook uses the plugin [community.general.npm](https://docs.ansible.com/ansible/latest/collections/community/general/npm_module.html). To install, issue the command
 
@@ -40,13 +40,13 @@ This playbook uses the plugin [community.general.npm](https://docs.ansible.com/a
 
 This collection is also required for the locale plugin detailed below.
 
-### Clone this repository
+## Clone this repository
 
 Either use GitHub suggested options (the green 'Code' button on the top right side of the page) or navigate to the destiny directory in the control system and type in a terminal
 
   $ `git clone jlsam/ot-node_ansible`
 
-### Ansible hosts file configuration
+## Ansible hosts file configuration
 
 Ansible [hosts](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html) file contains an inventory of servers, server groups and optionally server-specific variables. Ansible uses the aliases in [~/.ssh/config](.ssh/config) and associated settings to establish SSH connections.
 
@@ -69,7 +69,7 @@ I recommend you pick one approach and take care not to declare the same variable
 
 >Ansible also supports a [specific directory/file](roles/origin_trail/vars/) structure for **role-specific variables**, i.e., variables that are common to all servers running the same setup (role).
 
-### Storing private keys and other sensitive data
+## Storing private keys and other sensitive data
 
 Instead of storing sensitive data like passwords and private keys in plain text, this setup uses the control system's Keyring to store those values. I find this solution more convenient than [Ansible Vault](https://docs.ansible.com/ansible/2.9/user_guide/vault.html#encrypt-string-for-use-in-yaml) because there is no need for password files or typing a password to unlock the vault everytime the playbook is executed. It also makes for simpler code.
 
@@ -80,7 +80,7 @@ To store and use values in the Keyring, follow these steps:
 
 3. Declare the variable using the template `"{{ lookup('keyring','myservice user') }}"`
 
-### Select graph database installer
+## Select graph database installer
 
 Either GraphDB or Blazegraph DB needs to be installed. Edit [`roles/origin_trail/vars/main.yml`](roles/origin_trail/vars/main.yml) accordingly. Blazegraph DB is the default selection.
 
@@ -90,13 +90,26 @@ Either GraphDB or Blazegraph DB needs to be installed. Edit [`roles/origin_trail
 
 To install different databases in different testnet servers, you will have to move the `database:` variable from [`roles/origin_trail/vars/main.yml`](roles/origin_trail/vars/main.yml) to either the `hosts` file or [`host_vars/`](host_vars/), as detailed above.
 
-### Optional: set locale
+## Optional: install [otnode-tester](https://github.com/Aescwine/otnode-tester)
+
+otnode-tester sends API requests to an OriginTrail node, testing the different APIs.
+
+To install, just un-comment the role in [manage_servers.yml](manage_servers.yml).
+
+## Optional: install [ODNBlockbuster](https://github.com/ethsplainer/ODNBlockbuster)
+
+ODNBlockbuster collects metadata of a random movie and uploads it to the DKG.
+This requires a OMDB API key to be created and added to the playbook. See instructions [here](roles/ODNBlockbuster/tasks/).
+
+You also need to un-comment the role in [manage_servers.yml](manage_servers.yml).
+
+## Optional: set locale
 
 Assign the variable `locale:` to match your keyboard layout in [roles/basic/vars/main.yml](roles/basic/vars/main.yml).
 
-If you don't care about this setting, you can skip it - in [roles/common/tasks/main.yml](roles/common/tasks/main.yml), find the task 'Update locale' and set the value of `tags:` to 'never'.
+If you don't care about this setting, you can ignore ir or disable it - in [roles/common/tasks/main.yml](roles/common/tasks/main.yml), find the task 'Update locale' and set the value of `tags:` to 'never'.
 
-### Optional: Server hardening roles
+## Optional: Server hardening roles
 
 I suggest using server hardening roles to help secure the servers:
 
@@ -104,12 +117,12 @@ I suggest using server hardening roles to help secure the servers:
 
 - [Any of these](https://galaxy.ansible.com/search?keywords=os-hardening&deprecated=false&order_by=-relevance) from Ansible Galaxy.
 
-### Execute the playbook
+## Execute the playbook
 
 At the root of the repository, run
 
   $`ansible-playbook manage_servers.yml -i hosts`
 
-### Acknowledgements
+## Acknowledgements
 
 The installation procedure was based in [the offical bash script installer](https://github.com/OriginTrail/ot-node/blob/v6/develop/installer/installer.sh) and had help of community members in [Telegram](https://t.me/otnodegroup).

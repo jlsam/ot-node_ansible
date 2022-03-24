@@ -71,7 +71,7 @@
       version: 2.0.2
       path: /root/ot-node
 
-  - name: Upload .env
+  - name: Create .env
     ansible.builtin.copy:
       dest: /root/ot-node/.env
       content: NODE_ENV=testnet

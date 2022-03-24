@@ -1,5 +1,5 @@
 ---
-- name: Clone otnode-tester v6 testnet from GitHub
+- name: Clone otnode-tester for v6 testnet
   ansible.builtin.git:
     repo: https://github.com/Aescwine/otnode-tester.git
     dest: /root/otnode-tester
@@ -9,7 +9,7 @@
     force: yes
   register: git_tester
 
-- name: Npm install ot-node
+- name: Npm install otnode-tester
   community.general.npm:
     #name: package # not-needed (defaults to package.json)
     path: /root/otnode-tester

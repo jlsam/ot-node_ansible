@@ -1,0 +1,37 @@
+---
+- name: Clone ODNBlockbuster for v6 testnet
+  ansible.builtin.git:
+    repo: https://github.com/ethsplainer/ODNBlockbuster.git
+    dest: /root/ODNBlockbuster
+    #version: master
+    clone: yes
+    single_branch: yes
+    force: yes
+  register: git_bb
+
+- name: Npm install ODNBlockbuster
+  community.general.npm:
+    #name: package # not-needed (defaults to package.json)
+    path: /root/ODNBlockbuster
+  when: git_bb.changed
+
+- name: OMDB API key in app.js
+  ansible.builtin.replace:
+    path: /root/ODNBlockbuster/app.js
+    regexp: MYKEY
+    replace: "{{ omdb_apikey }}"
+
+- name: Place ODNBlockbuster service file
+  ansible.builtin.copy:
+    src: /root/ODNBlockbuster/service/blockbuster.service
+    dest: /lib/systemd/system/
+    remote_src: yes
+    mode: 0640
+
+- name: Enable and start blockbuster.service
+  ansible.builtin.systemd:
+    name: blockbuster
+    state: started
+    enabled: yes
+    daemon_reload: yes
+    masked: no
