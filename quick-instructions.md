@@ -30,12 +30,16 @@
 
  6. Save the operational wallet private key to your keyring
 
-    $ `keyring set myservice user`
+    $ `keyring set <myservice> <key>`
 
- 7. Set the operational wallet address and private key to variables in `host_vars/v6_testnet.yml` (ssh_alias.yml). Set the lookup variable names to match what you chose in step 6.
+ 7. Set the operational wallet address and private key to variables in `host_vars/ssh_alias.yml`. For an example, see [`host_vars/v6_testnet.yml`](host_vars/v6_testnet.yml). Set the lookup variable names to match what you chose in step 6.
 
  8. Choose which Graph database you want to run in [`roles/origin_trail/vars/main.yml`](roles/origin_trail/vars/main.yml). Blazegraph is the default and requires no other action. If you choose GraphDB, place the installer `graphdb-free-9.10.x-dist.zip` in [`roles/origin_trail/files/`](roles/origin_trail/files/).
 
- 9. Execute the playbook in the root directory of the repository:
+ 9. Uncomment the role in [`manage_servers.yml`](manage_servers.yml) if you want to install otnode-tester.
+ 
+ 10. Uncomment the role in [`manage_servers.yml`](manage_servers.yml) if you want to install ODNBlockbuster. You also need to obtain a OMDB API key from [this page](https://www.omdbapi.com/apikey.aspx); then assign this key to `omdb_apikey:` in `host_vars/ssh_alias.yml`. For more configuration options, see [`roles/ODNBlockbuster/tasks`](roles/ODNBlockbuster/tasks).
+ 
+ 11. Execute the playbook in the root directory of the repository:
 
     $ `ansible-playbook manage_servers.yml -i hosts`
