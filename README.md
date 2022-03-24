@@ -1,3 +1,5 @@
+### Introduction
+
 This [Ansible](https://www.ansible.com/) [playbook](https://docs.ansible.com/ansible/latest/user_guide/playbooks_intro.html) and associated files will setup a fresh Linux server and install an Origin Trail v6 test node. Testing was done in a VPS running Ubuntu 18.04 and 20.04. These instructions also assume your [control](https://docs.ansible.com/ansible/latest/network/getting_started/basic_concepts.html#control-node) system is running a Linux distribution that uses `apt` as the package manager.
 
 See [this file](quick-instructions.md) for quick setup instructions.
@@ -20,13 +22,13 @@ Official Ansible installation instructions are provided [here](https://docs.ansi
 
 But in a nutshell, run these commands:
 
-  $ `sudo apt update`
+ $ `sudo apt update`
 
-  $ `sudo apt install software-properties-common`
+ $ `sudo apt install software-properties-common`
 
-  $ `sudo add-apt-repository --yes --update ppa:ansible/ansible`
+ $ `sudo add-apt-repository --yes --update ppa:ansible/ansible`
 
-  $ `sudo apt install ansible`
+ $ `sudo apt install ansible`
 
 Ansible is installed in the control system only. There are no installation steps for the remote servers. Ansible connects to the remote servers via SSH and uses the existing Python libraries to execute the playbooks.
 
@@ -58,7 +60,7 @@ The included [`hosts`](hosts) file demonstrates several different ways to setup 
 
 - If a [role](https://docs.ansible.com/ansible/latest/user_guide/playbooks_reuse_roles.html) applies only to a subset of the inventory, you can create more groups under `children:`. These groups can contain both existing individual servers and also existing server groups (ex. `ot_nodes:`). The playbook file can include one or more of these names as the target(s) for the playbook execution.
 
-The `hosts` file can store **server-specific variables**. Alternatively, these variables can be stored in .yml files under [`host-vars`](host-vars/), each filename matching the server alias. Examples are provided for both situations. If the hosts file becomes too unwieldy and confusing with many servers and variables, the `host-vars` directory is probably the best option.
+The `hosts` file can store **server-specific variables**. Alternatively, these variables can be stored in .yml files under [`host_vars/`](host_vars/), each filename matching the server alias. Examples are provided for both situations. If the `hosts` file becomes too unwieldy and confusing with many servers and variables, the `host_vars/` directory is probably the best option.
 
 I recommend you pick one approach and take care not to declare the same variable in different locations, otherwise you can run into problems because of [variable precedence](https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html#variable-precedence-where-should-i-put-a-variable). In any case, two variables need to be declared for the playbook to work, see [host_vars/v6_testnet.yml](host_vars/v6_testnet.yml) for a template.
 
@@ -86,7 +88,7 @@ Either GraphDB or Blazegraph DB needs to be installed. Edit [`roles/origin_trail
 
 - GraphDB requires the installer to be obtained manually and copied to [`roles/origin_trail/files/`](roles/origin_trail/files). [Instructions to obtain the file](https://docs.origintrail.io/dkg-v6-beta/testnet-node-setup-instructions/setup-instructions-dockerless) can be found in the offical Origin Trail documentation.
 
-To install different databases in different testnet servers, you will have to move the `database:` variable from [`roles/origin_trail/vars/main.yml`](roles/origin_trail/vars/main.yml) to either the hosts file or [`host-vars/`](host-vars/), as detailed above.
+To install different databases in different testnet servers, you will have to move the `database:` variable from [`roles/origin_trail/vars/main.yml`](roles/origin_trail/vars/main.yml) to either the `hosts` file or [`host_vars/`](host_vars/), as detailed above.
 
 ### Optional: set locale
 
