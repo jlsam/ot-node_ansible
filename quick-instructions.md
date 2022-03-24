@@ -32,7 +32,7 @@
 
     $ `keyring set <myservice> <key>`
 
- 7. Set the operational wallet address and private key to variables in `host_vars/ssh_alias.yml`. For an example, see [`host_vars/v6_testnet.yml`](host_vars/v6_testnet.yml). Set the lookup variable names to match what you chose in step 6.
+ 7. Set the operational wallet address and private key to variables in `host_vars/ssh_alias.yml` (one file for each server). For an example, see [`host_vars/v6_testnet.yml`](host_vars/v6_testnet.yml). Set the lookup variable names to match what you chose in step 6.
 
  8. Choose which Graph database you want to run in [`roles/origin_trail/vars/main.yml`](roles/origin_trail/vars/main.yml). Blazegraph is the default and requires no other action. If you choose GraphDB, place the installer `graphdb-free-9.10.x-dist.zip` in [`roles/origin_trail/files/`](roles/origin_trail/files/).
 
