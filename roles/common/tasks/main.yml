@@ -12,8 +12,8 @@
     state: present
   loop:
     - fail2ban
-    #- ufw # for Debian
-    #- gnupg # for Debian
+    - ufw # for Debian
+    - gnupg # for Debian
 
 - name: Setup UFW
   ansible.builtin.include_tasks: ufw.yml
@@ -38,7 +38,7 @@
 # ###################################
 #    Harden /etc/ssh/sshd_config
 
-# Ubuntu 20+
+# Ubuntu 20+, Debian 11+
 # https://linuxliteracy.com/new-way-to-manage-ssh-options-in-ubuntu-20-04/
 - name: Override settings in /etc/ssh/sshd_config
   ansible.builtin.copy:
@@ -55,7 +55,8 @@
   notify: sshd_reload
   register: sshd_config
   when: >
-    ansible_distribution == "Ubuntu" and ansible_distribution_major_version|int >= 20
+    ansible_distribution == "Ubuntu" and ansible_distribution_major_version|int >= 20 or
+    ansible_distribution == "Debian" and ansible_distribution_major_version|int >= 11
 
 # Not any of the above
 - block:

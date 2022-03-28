@@ -1,10 +1,8 @@
 ## Introduction
 
-This [Ansible](https://www.ansible.com/) [playbook](https://docs.ansible.com/ansible/latest/user_guide/playbooks_intro.html) and associated files will setup a fresh Linux server and install an Origin Trail v6 test node. Testing was done in a VPS running Ubuntu 18.04 and 20.04. These instructions also assume your [control](https://docs.ansible.com/ansible/latest/network/getting_started/basic_concepts.html#control-node) system is running a Linux distribution that uses `apt` as the package manager.
+This [Ansible](https://www.ansible.com/) [playbook](https://docs.ansible.com/ansible/latest/user_guide/playbooks_intro.html) and associated files will setup a fresh Linux server and install an Origin Trail v6 test node. Testing was done in a VPS running Ubuntu 18.04, 20.04 and Debian 10, 11. These instructions also assume your [control](https://docs.ansible.com/ansible/latest/network/getting_started/basic_concepts.html#control-node) system is running a Linux distribution that uses `apt` as the package manager.
 
 See [this file](quick-instructions.md) for quick setup instructions.
-
-Recent versions of Debian [switched](https://wiki.debian.org/MySql) from MySQL to MariaDB. ot-node bash installer uses MySQL and one of the commands is not compatible with MariaDB. If the Origin Trail provides support for MariaDB in the future I will endeavor to make the necessary changes, but for now Debian is not supported.
 
 ## SSH configuration
 This setup assumes a working `config` file in ~/.ssh, in the control system. I include a sample file and simple instructions [here](.ssh/).
@@ -89,6 +87,10 @@ Either GraphDB or Blazegraph DB needs to be installed. Edit [`roles/origin_trail
 - GraphDB requires the installer to be obtained manually and copied to [`roles/origin_trail/files/`](roles/origin_trail/files). [Instructions to obtain the file](https://docs.origintrail.io/dkg-v6-beta/testnet-node-setup-instructions/setup-instructions-dockerless) can be found in the offical Origin Trail documentation.
 
 To install different databases in different testnet servers, you will have to move the `database:` variable from [`roles/origin_trail/vars/main.yml`](roles/origin_trail/vars/main.yml) to either the `hosts` file or [`host_vars/`](host_vars/), as detailed above.
+
+## Optional: install MySQL instead of MariaDB
+
+To switch, change `use_mariadb:` to `no` in [roles/origin_trail/vars/main.yml](roles/origin_trail/vars/main.yml).
 
 ## Optional: install [otnode-tester](https://github.com/Aescwine/otnode-tester)
 

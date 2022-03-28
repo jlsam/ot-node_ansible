@@ -9,4 +9,7 @@ blazegraph_url: https://github.com/blazegraph/database/releases/download/BLAZEGR
 #manag_wallet: 0xfab44cea8fE1fD097F823E6b94dB41E49d765CB7
 
 # graphdb OR blazegraph
-database: blazegraph
+graph_database: blazegraph
+
+# mariadb or mysql
+use_mariadb: yes

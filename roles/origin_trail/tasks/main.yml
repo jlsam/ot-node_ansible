@@ -8,7 +8,7 @@
 
 - name: Add NodeSource repository
   ansible.builtin.apt_repository:
-    repo: deb [arch=amd64] https://deb.nodesource.com/node_14.x {{ansible_distribution_release}} main
+    repo: deb [arch=amd64] https://deb.nodesource.com/node_16.x {{ansible_distribution_release}} main
     state: present
 
 - name: Install packages
@@ -22,7 +22,23 @@
     - unzip
     - nodejs
     - tcllib
-    - mysql-server
+
+- name: Install MariaDB
+  ansible.builtin.apt:
+    name: mariadb-server
+    state: present
+  when: use_mariadb
+
+- name: Install MySQL
+  ansible.builtin.apt:
+    name: mysql-server
+    state: present
+  when: not use_mariadb
+
+- name: Prevent nodejs from being upgraded
+  ansible.builtin.dpkg_selections:
+    name: nodejs
+    selection: hold
 
 - name: Create a symbolic link for java (Ubuntu 18)
   ansible.builtin.file:
@@ -32,11 +48,6 @@
     group: root
     state: link
   when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version|int < 20
-
-- name: Prevent nodejs from being upgraded
-  ansible.builtin.dpkg_selections:
-    name: nodejs
-    selection: hold
 
 # ###################################
 #        ot-node setup
@@ -94,7 +105,7 @@
   with_items:
     - implementation
     - localhost:9999/blazegraph
-  when: noderc.changed and database == "graphdb"
+  when: noderc.changed and graph_database == "graphdb"
   tags: graphdb, noderc, ot_node
 
 # ###################################
@@ -122,7 +133,7 @@
       enabled: yes
       daemon_reload: yes
       masked: no
-  when: database == "blazegraph"
+  when: graph_database == "blazegraph"
   tags: blazegraph
 
 - block:
@@ -159,7 +170,7 @@
       enabled: yes
       daemon_reload: yes
       masked: no
-  when: database == "graphdb"
+  when: graph_database == "graphdb"
   tags: graphdb
 
 - name: Delete MySQL operationaldb
@@ -196,7 +207,45 @@
     ansible.builtin.systemd:
       name: mysql
       state: restarted
+  when: not use_mariadb
   tags: mysql
+
+- block:
+  - name: Copy setup-mariadb.sql batch file
+    ansible.builtin.copy:
+      src: setup-mariadb.sql
+      dest: /root/setup-mariadb.sql
+      mode: 0640
+
+  - name: Setup MariaDB
+    ansible.builtin.command: mysql_install_db --user=mysql --basedir=/usr --datadir=/var
+
+  - name: Execute MariaDB batch file
+    ansible.builtin.shell: 'mysql < setup-mariadb.sql'
+    args:
+      chdir: /root
+
+  - name: skip-log-bin in mysqld.cnf
+    ansible.builtin.lineinfile:
+      path: /etc/mysql/mariadb.conf.d/50-mysql-clients.cnf
+      insertafter: mysqlbinlog
+      #regexp: "^max_binlog_size"
+      line: skip-log-bin
+      state: present
+
+  - name: mariadb.service restarted
+    ansible.builtin.systemd:
+      name: mariadb
+      state: restarted
+
+  - name: Replace config/sequelizeConfig.js
+    ansible.builtin.copy:
+      src: sequelizeConfig.js
+      dest: /root/ot-node/config/sequelizeConfig.js
+      force: yes
+      mode: 0640
+  when: use_mariadb
+  tags: mariadb
 
 - name: Run DB migrations
   ansible.builtin.command: npx sequelize --config=./config/sequelizeConfig.js db:migrate

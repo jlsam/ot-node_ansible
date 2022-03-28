@@ -36,10 +36,12 @@
 
  8. Choose which Graph database you want to run in [`roles/origin_trail/vars/main.yml`](roles/origin_trail/vars/main.yml). Blazegraph is the default and requires no other action. If you choose GraphDB, place the installer `graphdb-free-9.10.x-dist.zip` in [`roles/origin_trail/files/`](roles/origin_trail/files/).
 
- 9. Uncomment the role in [`manage_servers.yml`](manage_servers.yml) if you want to install otnode-tester.
- 
- 10. Uncomment the role in [`manage_servers.yml`](manage_servers.yml) if you want to install ODNBlockbuster. You also need to obtain a OMDB API key from [this page](https://www.omdbapi.com/apikey.aspx); then assign this key to `omdb_apikey:` in `host_vars/ssh_alias.yml`. For more configuration options, see [`roles/ODNBlockbuster/tasks`](roles/ODNBlockbuster/tasks).
- 
- 11. Execute the playbook in the root directory of the repository:
+ 9. To install MySQL instead of MariaDB, change `use_mariadb:` to `no` in [roles/origin_trail/vars/main.yml](roles/origin_trail/vars/main.yml).
+
+ 10. Uncomment the role in [`manage_servers.yml`](manage_servers.yml) if you want to install otnode-tester.
+
+ 11. Uncomment the role in [`manage_servers.yml`](manage_servers.yml) if you want to install ODNBlockbuster. You also need to obtain a OMDB API key from [this page](https://www.omdbapi.com/apikey.aspx); then assign this key to `omdb_apikey:` in `host_vars/ssh_alias.yml`. For more configuration options, see [`roles/ODNBlockbuster/tasks`](roles/ODNBlockbuster/tasks).
+
+ 12. Execute the playbook in the root directory of the repository:
 
     $ `ansible-playbook manage_servers.yml -i hosts`
